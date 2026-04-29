@@ -547,8 +547,9 @@
         <label>Área do direito <span class="req">*</span></label>
         <select id="cont-area" onchange="trocarAreaContrato()">
           <option value="previdenciario">Previdenciário</option>
+          <option value="auxilioacidente">Auxílio Acidente</option>
           <option value="trabalhista">Trabalhista</option>
-          <option value="civel">Cível</option>
+          <option value="outros">Outros</option>
         </select>
       </div>
 
@@ -575,7 +576,29 @@
           </div>
           <div class="field">
             <label>Parcelas do benefício após concessão</label>
-            <input id="prev-parcelas" placeholder="Ex: 3 parcelas do benefício" />
+            <input id="prev-parcelas" placeholder="Ex: 4 parcelas do benefício" />
+          </div>
+        </div>
+      </div>
+
+      <!-- ── AUXÍLIO ACIDENTE ── -->
+      <div id="cont-campos-auxilioacidente" style="display:none">
+        <div class="grid2">
+          <div class="field">
+            <label>Valor fixo dos honorários</label>
+            <input id="aux-valor" placeholder="Ex: R$ 1.000,00 (Um mil reais)" />
+          </div>
+          <div class="field">
+            <label>Forma de pagamento do valor fixo</label>
+            <input id="aux-pagamento" placeholder="Ex: em duas parcelas nos meses 03 e 04/2026" />
+          </div>
+          <div class="field">
+            <label>% sobre benefícios atrasados</label>
+            <input id="aux-pct-atrasado" placeholder="Ex: 35%" />
+          </div>
+          <div class="field">
+            <label>Parcelas do benefício após concessão</label>
+            <input id="aux-parcelas" placeholder="Ex: 4 parcelas do benefício" />
           </div>
         </div>
       </div>
@@ -585,7 +608,7 @@
         <div class="grid2">
           <div class="field">
             <label>Valor fixo dos honorários</label>
-            <input id="trab-valor" placeholder="Ex: R$ 800,00 (Oitocentos reais)" />
+            <input id="trab-valor" placeholder="Ex: R$ 300,00 (Trezentos reais)" />
           </div>
           <div class="field">
             <label>Forma de pagamento do valor fixo</label>
@@ -593,25 +616,25 @@
           </div>
           <div class="field col2">
             <label>% sobre o valor obtido no acordo/sentença <span class="req">*</span></label>
-            <input id="trab-pct" placeholder="Ex: 35% sobre o valor bruto obtido em acordo ou sentença" />
+            <input id="trab-pct" placeholder="Ex: 35% sobre o valor bruto obtido em acordo ou sentença, incluindo FGTS e Seguro Desemprego" />
           </div>
         </div>
       </div>
 
-      <!-- ── CÍVEL ── -->
-      <div id="cont-campos-civel" style="display:none">
+      <!-- ── OUTROS ── -->
+      <div id="cont-campos-outros" style="display:none">
         <div class="grid2">
           <div class="field">
-            <label>Valor fixo dos honorários <span class="req">*</span></label>
-            <input id="civel-valor" placeholder="Ex: R$ 1.000,00 (Hum mil reais)" />
+            <label>Valor fixo dos honorários</label>
+            <input id="outros-valor" placeholder="Ex: R$ 1.000,00 (Hum mil reais)" />
           </div>
           <div class="field">
-            <label>Forma de pagamento do valor fixo <span class="req">*</span></label>
-            <input id="civel-pagamento" placeholder="Ex: 50% na assinatura e 50% na distribuição" />
+            <label>Forma de pagamento do valor fixo</label>
+            <input id="outros-pagamento" placeholder="Ex: 50% na assinatura e 50% na distribuição" />
           </div>
           <div class="field col2">
-            <label>% de êxito (sobre o valor obtido)</label>
-            <input id="civel-pct-exito" placeholder="Ex: 35% sobre o valor efetivamente obtido" />
+            <label>Honorários de êxito / outras condições</label>
+            <textarea id="outros-livre" style="min-height:70px" placeholder="Ex: 35% sobre o valor efetivamente obtido, a ser pago após o recebimento pelo CONSTITUINTE"></textarea>
           </div>
         </div>
       </div>
@@ -829,6 +852,24 @@
 
         label = 'Contrato de Honorários — Previdenciário';
 
+      } else if (area === 'auxilioacidente') {
+        const valor    = v('aux-valor');
+        const pagto    = v('aux-pagamento');
+        const pct      = v('aux-pct-atrasado');
+        const parcelas = v('aux-parcelas');
+
+        let itens = '';
+        if (valor && pagto) itens += `<p style="padding-left:2em">— ${valor}, pagos da seguinte forma: ${pagto};</p>`;
+        if (pct)            itens += `<p style="padding-left:2em">— ${pct} dos valores apurados referentes ao pagamento dos benefícios atrasados, que serão pagos após a liberação desses valores;</p>`;
+        if (parcelas)       itens += `<p style="padding-left:2em">— ${parcelas}, após a implementação do benefício, cujo pagamento poderá ser combinado com a CONSTITUÍDA.</p>`;
+
+        clausulaHonorarios = `
+          <p>A CONSTITUINTE pagará ao CONSTITUÍDO, em remuneração dos serviços contratados (<strong>${servico}</strong>), os seguintes honorários:</p>
+          ${itens || '<p style="padding-left:2em">— [HONORÁRIOS A DEFINIR].</p>'}
+          <p>A CONSTITUINTE obriga-se a fornecer ao CONSTITUÍDO todos os documentos que lhe forem solicitados, dentro do prazo legal, providência essa necessária ao perfeito andamento do processo.</p>`;
+
+        label = 'Contrato de Honorários — Auxílio Acidente';
+
       } else if (area === 'trabalhista') {
         const valor  = v('trab-valor');
         const pagto  = v('trab-pagamento');
@@ -847,20 +888,21 @@
         label = 'Contrato de Honorários — Trabalhista';
 
       } else {
-        // CÍVEL
-        const valor  = v('civel-valor') || '[VALOR]';
-        const pagto  = v('civel-pagamento') || '[FORMA DE PAGAMENTO]';
-        const exito  = v('civel-pct-exito');
+        // OUTROS
+        const valor  = v('outros-valor');
+        const pagto  = v('outros-pagamento');
+        const livre  = v('outros-livre');
 
-        let itens = `<p style="padding-left:2em">— Honorários fixos de ${valor}, pagos da seguinte forma: ${pagto};</p>`;
-        if (exito) itens += `<p style="padding-left:2em">— Honorários de êxito de ${exito}, devidos somente em caso de resultado favorável ao CONSTITUINTE, a serem pagos no prazo de até 5 (cinco) dias úteis do efetivo recebimento dos valores.</p>`;
+        let itens = '';
+        if (valor && pagto) itens += `<p style="padding-left:2em">— Honorários fixos de ${valor}, pagos da seguinte forma: ${pagto};</p>`;
+        if (livre) itens += `<p style="padding-left:2em">— ${livre}.</p>`;
 
         clausulaHonorarios = `
           <p>A CONSTITUINTE pagará ao CONSTITUÍDO, em remuneração dos serviços contratados (<strong>${servico}</strong>), os seguintes honorários:</p>
-          ${itens}
+          ${itens || '<p style="padding-left:2em">— [HONORÁRIOS A DEFINIR].</p>'}
           <p>A CONSTITUINTE obriga-se a fornecer ao CONSTITUÍDO todos os documentos que lhe forem solicitados, dentro do prazo legal, providência essa necessária ao perfeito andamento do processo.</p>`;
 
-        label = 'Contrato de Honorários — Cível';
+        label = 'Contrato de Honorários — Outros';
       }
 
       html = `
@@ -928,14 +970,16 @@
 
   function trocarAreaContrato() {
     const area = v('cont-area');
-    document.getElementById('cont-campos-previdenciario').style.display = area === 'previdenciario' ? '' : 'none';
-    document.getElementById('cont-campos-trabalhista').style.display    = area === 'trabalhista'    ? '' : 'none';
-    document.getElementById('cont-campos-civel').style.display          = area === 'civel'          ? '' : 'none';
+    document.getElementById('cont-campos-previdenciario').style.display  = area === 'previdenciario'  ? '' : 'none';
+    document.getElementById('cont-campos-auxilioacidente').style.display = area === 'auxilioacidente' ? '' : 'none';
+    document.getElementById('cont-campos-trabalhista').style.display     = area === 'trabalhista'     ? '' : 'none';
+    document.getElementById('cont-campos-outros').style.display          = area === 'outros'          ? '' : 'none';
 
     const placeholders = {
-      previdenciario: 'Ex: Pedido Judicial de Benefício Assistencial à Pessoa com Deficiência',
-      trabalhista:    'Ex: Ação Trabalhista',
-      civel:          'Ex: Ação Indenizatória Danos Morais/Materiais'
+      previdenciario:  'Ex: Pedido Judicial de Benefício Assistencial à Pessoa com Deficiência',
+      auxilioacidente: 'Ex: Pedido Judicial de Auxílio Acidente',
+      trabalhista:     'Ex: Ação Trabalhista',
+      outros:          'Ex: Ação Indenizatória Danos Morais/Materiais'
     };
     document.getElementById('cont-servico').placeholder = placeholders[area] || '';
   }
@@ -945,8 +989,9 @@
     ['nome','rg','orgao','cpf','filiacao','endereco','profissao',
      'menor-nome','menor-nac','menor-cpf','cont-servico',
      'prev-valor','prev-pagamento','prev-pct-atrasado','prev-parcelas',
+     'aux-valor','aux-pagamento','aux-pct-atrasado','aux-parcelas',
      'trab-valor','trab-pagamento','trab-pct',
-     'civel-valor','civel-pagamento','civel-pct-exito'].forEach(id => {
+     'outros-valor','outros-pagamento','outros-livre'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
