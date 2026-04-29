@@ -424,13 +424,21 @@
       <button class="tab" onclick="trocarAba('hipos')">Decl. Hipossuficiência</button>
     </div>
 
-    <!-- Toggle menor de idade -->
-    <label class="toggle-row" for="chk-menor">
-      <input type="checkbox" id="chk-menor" onchange="toggleMenor()" />
-      <span class="toggle-label">Cliente é menor de idade
-        <small>— preencher também dados do responsável legal</small>
-      </span>
-    </label>
+    <!-- Toggles -->
+    <div style="display:flex; gap:8px; margin-bottom:1rem; flex-wrap:wrap;">
+      <label class="toggle-row" for="chk-menor" style="flex:1; margin-bottom:0;">
+        <input type="checkbox" id="chk-menor" onchange="toggleTipo()" />
+        <span class="toggle-label">Menor de idade
+          <small>— com responsável legal</small>
+        </span>
+      </label>
+      <label class="toggle-row" for="chk-pj" style="flex:1; margin-bottom:0;">
+        <input type="checkbox" id="chk-pj" onchange="toggleTipo()" />
+        <span class="toggle-label">Pessoa Jurídica
+          <small>— empresa / CNPJ</small>
+        </span>
+      </label>
+    </div>
 
     <!-- DADOS DO MENOR (condicional) -->
     <div id="bloco-menor" class="menor-section">
@@ -447,7 +455,7 @@
           </div>
           <div class="field col2">
             <label>CPF do menor (se houver)</label>
-            <input id="menor-cpf" placeholder="Ex: 188.690.026-40" />
+            <input id="menor-cpf" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" oninput="mascaraCPF(this)" />
           </div>
         </div>
         <div class="gap-top">
@@ -462,6 +470,49 @@
               <option value="curadora">curadora</option>
               <option value="curador">curador</option>
             </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DADOS PJ (condicional) -->
+    <div id="bloco-pj" class="menor-section">
+      <div class="card">
+        <div class="card-title">Dados da Empresa (Outorgante / Constituinte)</div>
+        <div class="grid3">
+          <div class="field col3">
+            <label>Razão social <span class="req">*</span></label>
+            <input id="pj-razao" placeholder="Ex: EMPRESA EXEMPLO LTDA" />
+          </div>
+          <div class="field">
+            <label>CNPJ <span class="req">*</span></label>
+            <input id="pj-cnpj" placeholder="00.000.000/0000-00" maxlength="18" inputmode="numeric" oninput="mascaraCNPJ(this)" />
+          </div>
+          <div class="field">
+            <label>Inscrição estadual</label>
+            <input id="pj-ie" placeholder="Ex: 123.456.789/0001" />
+          </div>
+          <div class="field col3">
+            <label>Endereço da empresa</label>
+            <input id="pj-endereco" placeholder="Ex: Rua das Flores, nº 100, Centro" />
+          </div>
+        </div>
+        <div class="gap-top grid2">
+          <div class="field">
+            <label>Nome do representante legal <span class="req">*</span></label>
+            <input id="pj-rep-nome" placeholder="Ex: JOÃO DA SILVA" />
+          </div>
+          <div class="field">
+            <label>Cargo do representante</label>
+            <input id="pj-rep-cargo" placeholder="Ex: sócio-administrador" />
+          </div>
+          <div class="field">
+            <label>CPF do representante</label>
+            <input id="pj-rep-cpf" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" oninput="mascaraCPF(this)" />
+          </div>
+          <div class="field">
+            <label>RG do representante</label>
+            <input id="pj-rep-rg" placeholder="Ex: MG-24.920.727 SSP/MG" />
           </div>
         </div>
       </div>
@@ -504,7 +555,7 @@
         </div>
         <div class="field">
           <label>CPF <span class="req">*</span></label>
-          <input id="cpf" placeholder="Ex: 050.521.671-05" />
+          <input id="cpf" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" oninput="mascaraCPF(this)" />
         </div>
         <div class="field col3">
           <label>Filiação (filha/filho de)</label>
@@ -679,10 +730,29 @@
 <script>
   let abaAtual = 'procuracao';
   let eMenor = false;
+  let ePJ = false;
 
   // Data de hoje
   const hoje = new Date();
   document.getElementById('data').value = hoje.toISOString().split('T')[0];
+
+  // ── Máscaras ──
+  function mascaraCPF(el) {
+    let v = el.value.replace(/\D/g, '').slice(0, 11);
+    v = v.replace(/(\d{3})(\d)/, '$1.$2');
+    v = v.replace(/(\d{3})(\d)/, '$1.$2');
+    v = v.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    el.value = v;
+  }
+
+  function mascaraCNPJ(el) {
+    let v = el.value.replace(/\D/g, '').slice(0, 14);
+    v = v.replace(/(\d{2})(\d)/, '$1.$2');
+    v = v.replace(/(\d{3})(\d)/, '$1.$2');
+    v = v.replace(/(\d{3})(\d)/, '$1/$2');
+    v = v.replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+    el.value = v;
+  }
 
   function trocarAba(aba) {
     abaAtual = aba;
@@ -693,20 +763,49 @@
     document.getElementById('spec-' + aba).classList.add('active');
   }
 
-  function toggleMenor() {
-    eMenor = document.getElementById('chk-menor').checked;
+  function toggleTipo() {
+    const chkMenor = document.getElementById('chk-menor');
+    const chkPJ    = document.getElementById('chk-pj');
+
+    // Não permite marcar os dois ao mesmo tempo
+    if (chkMenor.checked && chkPJ.checked) {
+      if (this === chkMenor) chkPJ.checked = false;
+      else chkMenor.checked = false;
+    }
+
+    eMenor = chkMenor.checked;
+    ePJ    = chkPJ.checked;
+
     document.getElementById('bloco-menor').classList.toggle('show', eMenor);
+    document.getElementById('bloco-pj').classList.toggle('show', ePJ);
+
     const tituloCard = document.getElementById('card-cliente-titulo');
-    const lblNome = document.getElementById('lbl-nome');
+    const lblNome    = document.getElementById('lbl-nome');
+    const lblNac     = document.getElementById('row-nacionalidade');
+    const lblEC      = document.getElementById('row-estado-civil');
+    const lblProf    = document.getElementById('row-profissao');
+    const lblRG      = document.getElementById('row-rg');
+    const lblFil     = document.getElementById('row-filiacao');
+
+    const marca = '<span style="width:3px;height:12px;background:var(--gold);border-radius:2px;display:inline-block;margin-right:8px"></span>';
+
     if (eMenor) {
-      tituloCard.textContent = 'Dados do Responsável Legal (Representante)';
-      tituloCard.innerHTML = '<span style="width:3px;height:12px;background:var(--gold);border-radius:2px;display:inline-block;margin-right:8px"></span>Dados do Responsável Legal (Representante)';
+      tituloCard.innerHTML = marca + 'Dados do Responsável Legal (Representante)';
       lblNome.textContent = 'Nome completo do responsável';
+      document.getElementById('cpf').placeholder = '000.000.000-00';
+    } else if (ePJ) {
+      tituloCard.innerHTML = marca + 'Dados da Pessoa Jurídica — Contratante';
+      lblNome.textContent = 'Razão social (para o contrato)';
+      document.getElementById('cpf').placeholder = '000.000.000-00';
     } else {
-      tituloCard.innerHTML = '<span style="width:3px;height:12px;background:var(--gold);border-radius:2px;display:inline-block;margin-right:8px"></span>Dados do Cliente';
+      tituloCard.innerHTML = marca + 'Dados do Cliente';
       lblNome.textContent = 'Nome completo';
+      document.getElementById('cpf').placeholder = '000.000.000-00';
     }
   }
+
+  // Manter compatibilidade com referências antigas
+  function toggleMenor() { toggleTipo(); }
 
   function v(id) { return (document.getElementById(id)?.value || '').trim(); }
 
@@ -717,7 +816,7 @@
     return `${parseInt(d)} de ${meses[parseInt(m)-1]} de ${y}`;
   }
 
-  // Gera qualificação completa (com ou sem menor)
+  // Gera qualificação completa (PJ, menor ou pessoa física)
   function qualificacaoOutorgante() {
     const nome = v('nome') || '[NOME]';
     const nac = v('nacionalidade');
@@ -729,10 +828,28 @@
     const fil = v('filiacao');
     const end = v('endereco');
 
-    if (eMenor) {
-      const menorNome = v('menor-nome') || '[NOME DO MENOR]';
-      const menorNac = v('menor-nac') || 'brasileiro(a)';
-      const menorCpf = v('menor-cpf');
+    if (ePJ) {
+      const razao    = v('pj-razao')     || '[RAZÃO SOCIAL]';
+      const cnpj     = v('pj-cnpj')      || '[CNPJ]';
+      const ie       = v('pj-ie');
+      const endPJ    = v('pj-endereco')  || end;
+      const repNome  = v('pj-rep-nome')  || '[REPRESENTANTE]';
+      const repCargo = v('pj-rep-cargo') || 'representante legal';
+      const repCPF   = v('pj-rep-cpf');
+      const repRG    = v('pj-rep-rg');
+
+      let txt = `<strong>${razao.toUpperCase()}</strong>, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${cnpj}`;
+      if (ie) txt += `, Inscrição Estadual nº ${ie}`;
+      if (endPJ) txt += `, com sede na ${endPJ}, na cidade de ${v('cidade')}/${v('uf')}`;
+      txt += `, neste ato representada por seu ${repCargo} <strong>${repNome.toUpperCase()}</strong>`;
+      if (repRG)  txt += `, portador(a) do RG nº ${repRG}`;
+      if (repCPF) txt += `, inscrito(a) no CPF sob o nº ${repCPF}`;
+      return txt;
+
+    } else if (eMenor) {
+      const menorNome  = v('menor-nome') || '[NOME DO MENOR]';
+      const menorNac   = v('menor-nac')  || 'brasileiro(a)';
+      const menorCpf   = v('menor-cpf');
       const parentesco = v('menor-parentesco') || 'genitora';
 
       let txt = `<strong>${menorNome.toUpperCase()}</strong>, ${menorNac}, menor impúbere`;
@@ -745,6 +862,7 @@
       if (fil) txt += `, filha de ${fil}`;
       if (end) txt += `, residente e domiciliada na ${end}, na cidade de ${v('cidade')}/${v('uf')}`;
       return txt;
+
     } else {
       let txt = `<strong>${nome.toUpperCase()}</strong>`;
       const partes = [nac, ec, prof].filter(Boolean);
@@ -757,13 +875,16 @@
     }
   }
 
-  // Quem assina no documento (nome principal para assinatura)
   function nomeAssinante() {
-    return eMenor ? (v('nome') || '[NOME DO RESPONSÁVEL]') : (v('nome') || '[NOME]');
+    if (ePJ)    return v('pj-rep-nome') || v('nome') || '[REPRESENTANTE]';
+    if (eMenor) return v('nome') || '[NOME DO RESPONSÁVEL]';
+    return v('nome') || '[NOME]';
   }
 
   function nomeDocumento() {
-    return eMenor ? (v('menor-nome') || '[NOME DO MENOR]') : (v('nome') || '[NOME]');
+    if (ePJ)    return v('pj-razao') || v('nome') || '[RAZÃO SOCIAL]';
+    if (eMenor) return v('menor-nome') || '[NOME DO MENOR]';
+    return v('nome') || '[NOME]';
   }
 
   function gerarDocumento() {
@@ -987,7 +1108,9 @@
   function limpar() {
     if (!confirm('Limpar todos os campos?')) return;
     ['nome','rg','orgao','cpf','filiacao','endereco','profissao',
-     'menor-nome','menor-nac','menor-cpf','cont-servico',
+     'menor-nome','menor-nac','menor-cpf',
+     'pj-razao','pj-cnpj','pj-ie','pj-endereco','pj-rep-nome','pj-rep-cargo','pj-rep-cpf','pj-rep-rg',
+     'cont-servico',
      'prev-valor','prev-pagamento','prev-pct-atrasado','prev-parcelas',
      'aux-valor','aux-pagamento','aux-pct-atrasado','aux-parcelas',
      'trab-valor','trab-pagamento','trab-pct',
@@ -996,8 +1119,11 @@
       if (el) el.value = '';
     });
     document.getElementById('chk-menor').checked = false;
+    document.getElementById('chk-pj').checked = false;
     document.getElementById('bloco-menor').classList.remove('show');
+    document.getElementById('bloco-pj').classList.remove('show');
     eMenor = false;
+    ePJ = false;
     document.getElementById('nacionalidade').value = 'brasileiro(a)';
     document.getElementById('menor-nac').value = 'brasileiro(a)';
     document.getElementById('cidade').value = 'Frutal';
@@ -1006,7 +1132,7 @@
     document.getElementById('cont-area').selectedIndex = 0;
     trocarAreaContrato();
     document.getElementById('data').value = new Date().toISOString().split('T')[0];
-    toggleMenor();
+    toggleTipo();
   }
   // ══════════ HISTÓRICO ══════════
 
