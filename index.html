@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cacilda Souza — Gerador de Documentos</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #2E2E5A;
+    --navy-light: #3d3d72;
+    --gold: #B5993A;
+    --gold-light: #d4b84a;
+    --bg: #F0EFED;
+    --surface: #FFFFFF;
+    --border: #DDD9D0;
+    --text: #1a1a2e;
+    --muted: #7a7a9a;
+    --danger: #8b2020;
+    --radius: 5px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--navy);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 2px solid var(--gold);
+  }
+
+  /* Logo SVG inline */
+  .logo-svg { width: 36px; height: 36px; flex-shrink: 0; }
+
+  .header-text { display: flex; flex-direction: column; }
+  .header-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.06em;
+    line-height: 1.1;
+  }
+  .header-sub {
+    font-size: 10px;
+    font-weight: 300;
+    color: var(--gold);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .header-oab {
+    margin-left: auto;
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── MAIN ── */
+  .main { max-width: 860px; margin: 0 auto; padding: 2rem 1rem 4rem; }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .tab {
+    flex: 1;
+    padding: 11px 8px;
+    font-size: 12px;
+    font-family: 'Jost', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.18s;
+    border-right: 1px solid var(--border);
+    text-align: center;
+  }
+  .tab:last-child { border-right: none; }
+  .tab:hover { background: var(--bg); color: var(--navy); }
+  .tab.active {
+    background: var(--navy);
+    color: #fff;
+    font-weight: 500;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .card-title {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title::before {
+    content: '';
+    display: inline-block;
+    width: 3px;
+    height: 12px;
+    background: var(--gold);
+    border-radius: 2px;
+  }
+
+  /* ── GRID ── */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .col2 { grid-column: span 2; }
+  .col3 { grid-column: span 3; }
+  .gap-top { margin-top: 12px; }
+
+  /* ── FIELDS ── */
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  label { font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: 0.03em; }
+  label .req { color: var(--danger); }
+
+  input, select, textarea {
+    font-family: 'Jost', sans-serif;
+    font-size: 13px;
+    padding: 9px 11px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    width: 100%;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--navy);
+    background: #fff;
+  }
+  textarea { resize: vertical; min-height: 90px; line-height: 1.55; }
+  select { cursor: pointer; }
+
+  /* ── TOGGLE MENOR ── */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .toggle-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--navy); cursor: pointer; }
+  .toggle-label { font-size: 13px; font-weight: 500; color: var(--navy); }
+  .toggle-label small { font-weight: 300; color: var(--muted); margin-left: 6px; }
+
+  .menor-section { display: none; }
+  .menor-section.show { display: block; }
+
+  /* ── SPEC SECTIONS ── */
+  .spec-section { display: none; }
+  .spec-section.active { display: block; }
+
+  /* ── BUTTONS ── */
+  .btn-row { display: flex; gap: 10px; margin-top: 1.5rem; align-items: center; }
+  .btn {
+    padding: 11px 24px;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Jost', sans-serif;
+    letter-spacing: 0.04em;
+    border-radius: var(--radius);
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    transition: all 0.15s;
+  }
+  .btn:hover { background: var(--bg); }
+  .btn.primary {
+    background: var(--navy);
+    color: #fff;
+    border-color: var(--navy);
+  }
+  .btn.primary:hover { background: var(--navy-light); }
+  .btn.gold {
+    background: var(--gold);
+    color: #fff;
+    border-color: var(--gold);
+  }
+  .btn.gold:hover { background: var(--gold-light); }
+  .btn.ghost { color: var(--danger); }
+  .btn.ghost:hover { background: #fdf0f0; border-color: #f5c0c0; }
+
+  /* ── DOCUMENTO GERADO ── */
+  #tela-doc { display: none; }
+
+  .doc-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+  }
+  .doc-toolbar-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-right: auto;
+  }
+
+  /* Folha do documento */
+  .doc-paper {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 3cm 3cm 3.5cm;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 12pt;
+    line-height: 1.9;
+    color: #111;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  }
+
+  .doc-titulo {
+    text-align: center;
+    font-size: 12pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 28px;
+    font-family: 'Courier New', Courier, monospace;
+  }
+  .doc-paper p { text-align: justify; margin-bottom: 12px; }
+  .doc-paper strong { font-weight: bold; }
+  .doc-paper .clausula-title { font-weight: bold; }
+  .doc-paper .local-data { margin-top: 32px; text-align: center; }
+
+  .assinaturas { margin-top: 60px; }
+  .ass-grid { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; }
+  .ass-bloco { text-align: center; min-width: 200px; }
+  .ass-linha { border-top: 1px solid #333; margin-bottom: 6px; }
+  .ass-nome { font-weight: bold; font-size: 12pt; font-family: 'Courier New', Courier, monospace; }
+  .ass-qual { font-size: 11pt; font-family: 'Courier New', Courier, monospace; }
+  .ass-oab { font-size: 11pt; font-family: 'Courier New', Courier, monospace; }
+
+  .testemunhas-titulo { font-size: 12pt; font-weight: bold; margin-top: 40px; margin-bottom: 20px; text-align: center; font-family: 'Courier New', Courier, monospace; }
+  .test-grid { display: flex; gap: 60px; justify-content: center; }
+  .test-bloco { text-align: center; min-width: 160px; }
+  .test-linha { border-top: 1px solid #333; margin-bottom: 5px; }
+
+  /* PRINT */
+  @media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { background: #fff; font-size: 12pt; }
+    .header, #tela-form, .doc-toolbar, .no-print { display: none !important; }
+    #tela-doc { display: block !important; }
+    .main { padding: 0; max-width: 100%; }
+    .doc-paper {
+      border: none;
+      box-shadow: none;
+      padding: 1.5cm 2.5cm 2cm;
+      page-break-inside: avoid;
+    }
+    .doc-letterhead-name { color: #2E2E5A !important; }
+    .doc-letterhead-sub { color: #B5993A !important; }
+    .doc-titulo { color: #2E2E5A !important; }
+  }
+
+  @media (max-width: 600px) {
+    .grid2, .grid3 { grid-template-columns: 1fr; }
+    .col2, .col3 { grid-column: span 1; }
+    .doc-paper { padding: 1.5rem 1rem; font-size: 11pt; }
+    .ass-grid, .test-grid { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <!-- Logo SVG inline — símbolo Cacilda Souza -->
+  <svg class="logo-svg" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Arco superior -->
+    <path d="M 55 88 A 52 52 0 0 1 145 88" stroke="#B5993A" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <!-- Bolinha topo -->
+    <circle cx="100" cy="36" r="7" fill="#B5993A"/>
+    <!-- Bolinhas nos cotovelos do V -->
+    <circle cx="57" cy="90" r="6" fill="#B5993A"/>
+    <circle cx="143" cy="90" r="6" fill="#B5993A"/>
+    <!-- Linhas do V (dos cotovelos até o centro) -->
+    <line x1="57" y1="90" x2="100" y2="112" stroke="#B5993A" stroke-width="5" stroke-linecap="round"/>
+    <line x1="143" y1="90" x2="100" y2="112" stroke="#B5993A" stroke-width="5" stroke-linecap="round"/>
+    <!-- Bolinha central -->
+    <circle cx="100" cy="112" r="9" fill="#B5993A"/>
+    <!-- Lua esquerda -->
+    <path d="M 42 72 Q 18 100 42 128" stroke="#B5993A" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <!-- Bolinha ponta esquerda -->
+    <circle cx="38" cy="100" r="6" fill="#B5993A"/>
+    <!-- Lua direita -->
+    <path d="M 158 72 Q 182 100 158 128" stroke="#B5993A" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <!-- Bolinha ponta direita -->
+    <circle cx="162" cy="100" r="6" fill="#B5993A"/>
+    <!-- Triângulo da balança -->
+    <path d="M 72 128 L 100 112 L 128 128 Z" fill="#B5993A"/>
+    <!-- Tigela da balança (semicírculo) -->
+    <path d="M 68 136 Q 100 160 132 136" stroke="#B5993A" stroke-width="7" fill="none" stroke-linecap="round"/>
+    <!-- Base horizontal da tigela -->
+    <line x1="68" y1="136" x2="132" y2="136" stroke="#B5993A" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+  <div class="header-text">
+    <span class="header-title">CACILDA SOUZA</span>
+    <span class="header-sub">Advocacia Especializada</span>
+  </div>
+  <span class="header-oab">OAB/MG 159.859</span>
+</div>
+
+<div class="main">
+
+  <!-- ══════════════ TELA FORMULÁRIO ══════════════ -->
+  <div id="tela-form">
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="trocarAba('procuracao')">Procuração</button>
+      <button class="tab" onclick="trocarAba('contrato')">Contrato de Honorários</button>
+      <button class="tab" onclick="trocarAba('hipos')">Decl. Hipossuficiência</button>
+    </div>
+
+    <!-- Toggle menor de idade -->
+    <label class="toggle-row" for="chk-menor">
+      <input type="checkbox" id="chk-menor" onchange="toggleMenor()" />
+      <span class="toggle-label">Cliente é menor de idade
+        <small>— preencher também dados do responsável legal</small>
+      </span>
+    </label>
+
+    <!-- DADOS DO MENOR (condicional) -->
+    <div id="bloco-menor" class="menor-section">
+      <div class="card">
+        <div class="card-title">Dados do Menor (Outorgante / Constituinte)</div>
+        <div class="grid3">
+          <div class="field col3">
+            <label>Nome completo do menor <span class="req">*</span></label>
+            <input id="menor-nome" placeholder="Ex: Samuel Silva Araújo" />
+          </div>
+          <div class="field">
+            <label>Nacionalidade</label>
+            <input id="menor-nac" value="brasileiro(a)" />
+          </div>
+          <div class="field col2">
+            <label>CPF do menor (se houver)</label>
+            <input id="menor-cpf" placeholder="Ex: 188.690.026-40" />
+          </div>
+        </div>
+        <div class="gap-top">
+          <div class="field">
+            <label>Qualidade do representante legal</label>
+            <select id="menor-parentesco">
+              <option value="genitora">genitora</option>
+              <option value="genitor">genitor</option>
+              <option value="representante legal">representante legal</option>
+              <option value="tutora">tutora</option>
+              <option value="tutor">tutor</option>
+              <option value="curadora">curadora</option>
+              <option value="curador">curador</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DADOS DO CLIENTE (ou responsável) -->
+    <div class="card">
+      <div class="card-title" id="card-cliente-titulo">Dados do Cliente</div>
+      <div class="grid3">
+        <div class="field col3">
+          <label><span id="lbl-nome">Nome completo</span> <span class="req">*</span></label>
+          <input id="nome" placeholder="Ex: Gleyciele Dias Araújo" />
+        </div>
+        <div class="field">
+          <label>Nacionalidade</label>
+          <input id="nacionalidade" value="brasileiro(a)" />
+        </div>
+        <div class="field">
+          <label>Estado civil</label>
+          <select id="estadoCivil">
+            <option>solteiro(a)</option>
+            <option>casado(a)</option>
+            <option>divorciado(a)</option>
+            <option>viúvo(a)</option>
+            <option>separado(a) judicialmente</option>
+            <option>em união estável</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Profissão</label>
+          <input id="profissao" placeholder="Ex: autônoma" />
+        </div>
+        <div class="field">
+          <label>RG <span class="req">*</span></label>
+          <input id="rg" placeholder="Ex: MG-24.920.727" />
+        </div>
+        <div class="field">
+          <label>Órgão emissor</label>
+          <input id="orgao" placeholder="Ex: SSP/MG" />
+        </div>
+        <div class="field">
+          <label>CPF <span class="req">*</span></label>
+          <input id="cpf" placeholder="Ex: 050.521.671-05" />
+        </div>
+        <div class="field col3">
+          <label>Filiação (filha/filho de)</label>
+          <input id="filiacao" placeholder="Ex: Maria Iraildes Dias de Sousa Araújo e Adalci Pereira de Araújo" />
+        </div>
+        <div class="field col3">
+          <label>Endereço completo <span class="req">*</span></label>
+          <input id="endereco" placeholder="Ex: Rua Nova Ponte, nº 1188, Bairro Progresso, Frutal/MG, CEP 38.204-036" />
+        </div>
+        <div class="field">
+          <label>Cidade <span class="req">*</span></label>
+          <input id="cidade" value="Frutal" />
+        </div>
+        <div class="field">
+          <label>UF</label>
+          <input id="uf" value="MG" style="max-width:70px" />
+        </div>
+        <div class="field">
+          <label>Data do documento</label>
+          <input id="data" type="date" />
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMPOS ESPECÍFICOS — PROCURAÇÃO -->
+    <div id="spec-procuracao" class="card spec-section active">
+      <div class="card-title">Procuração — Poderes Outorgados</div>
+      <div class="field">
+        <label>Texto dos poderes</label>
+        <textarea id="proc-poderes">para o foro em geral, com cláusula ad judicia, em qualquer Juízo, Instância ou Tribunal, bem como em procedimentos administrativos, perante quaisquer repartições públicas, para transigir, desistir, firmar compromissos e acordos, podendo ainda representar os outorgantes junto à Instituições Financeiras, receber e dar quitação, assinando pessoalmente requerimentos e todos os demais atos necessários ao fim colimado, substabelecer com ou sem reserva de iguais poderes, postular os benefícios da Justiça Gratuita, intentar medidas cautelares preparatórias ou incidentais, louvar-se em peritos ou impugná-los, podendo propor contra quem de direito as ações competentes e defendê-la nas contrárias, seguindo umas e outras, até decisão final, usando os recursos legais e acompanhando-os, dando tudo por bom e valioso.</textarea>
+      </div>
+    </div>
+
+    <!-- CAMPOS ESPECÍFICOS — CONTRATO -->
+    <div id="spec-contrato" class="card spec-section">
+      <div class="card-title">Contrato de Honorários — Detalhes</div>
+      <div class="grid2">
+        <div class="field col2">
+          <label>Objeto / serviço contratado <span class="req">*</span></label>
+          <input id="cont-servico" placeholder="Ex: Pedido Judicial de Benefício Assistencial à Pessoa com Deficiência" />
+        </div>
+        <div class="field">
+          <label>Valor fixo dos honorários <span class="req">*</span></label>
+          <input id="cont-valor" placeholder="Ex: R$ 500,00 (Quinhentos reais)" />
+        </div>
+        <div class="field">
+          <label>Percentual sobre atrasados (%)</label>
+          <input id="cont-pct-atrasado" placeholder="Ex: 35%" />
+        </div>
+        <div class="field">
+          <label>Parcelas do benefício após concessão</label>
+          <input id="cont-parcelas-beneficio" placeholder="Ex: 4 parcelas do benefício" />
+        </div>
+        <div class="field col2">
+          <label>Forma de pagamento do valor fixo <span class="req">*</span></label>
+          <textarea id="cont-pagamento" style="min-height:60px" placeholder="Ex: R$ 500,00, dividido em duas parcelas, que deverão ser pagas no quinto dia útil dos meses 03/2026 e 04/2026"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAMPOS ESPECÍFICOS — HIPOSSUFICIÊNCIA -->
+    <div id="spec-hipos" class="card spec-section">
+      <div class="card-title">Declaração de Hipossuficiência</div>
+      <p style="font-size:12px; color:var(--muted); margin-bottom:12px;">O texto da declaração já está configurado conforme o modelo do escritório. Nenhum campo adicional necessário.</p>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn primary" onclick="gerarDocumento()">Gerar documento →</button>
+      <button class="btn ghost" onclick="limpar()">Limpar campos</button>
+    </div>
+
+  </div><!-- fim tela-form -->
+
+  <!-- ══════════════ TELA DOCUMENTO ══════════════ -->
+  <div id="tela-doc">
+    <div class="doc-toolbar no-print">
+      <span class="doc-toolbar-title" id="doc-label">Documento</span>
+      <button class="btn" onclick="voltar()">← Voltar e editar</button>
+      <button class="btn primary" onclick="window.print()">🖨 Imprimir</button>
+    </div>
+    <div class="doc-paper" id="doc-conteudo"></div>
+  </div>
+
+</div><!-- fim main -->
+
+<script>
+  let abaAtual = 'procuracao';
+  let eMenor = false;
+
+  // Data de hoje
+  const hoje = new Date();
+  document.getElementById('data').value = hoje.toISOString().split('T')[0];
+
+  function trocarAba(aba) {
+    abaAtual = aba;
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', ['procuracao','contrato','hipos'][i] === aba);
+    });
+    document.querySelectorAll('.spec-section').forEach(s => s.classList.remove('active'));
+    document.getElementById('spec-' + aba).classList.add('active');
+  }
+
+  function toggleMenor() {
+    eMenor = document.getElementById('chk-menor').checked;
+    document.getElementById('bloco-menor').classList.toggle('show', eMenor);
+    const tituloCard = document.getElementById('card-cliente-titulo');
+    const lblNome = document.getElementById('lbl-nome');
+    if (eMenor) {
+      tituloCard.textContent = 'Dados do Responsável Legal (Representante)';
+      tituloCard.innerHTML = '<span style="width:3px;height:12px;background:var(--gold);border-radius:2px;display:inline-block;margin-right:8px"></span>Dados do Responsável Legal (Representante)';
+      lblNome.textContent = 'Nome completo do responsável';
+    } else {
+      tituloCard.innerHTML = '<span style="width:3px;height:12px;background:var(--gold);border-radius:2px;display:inline-block;margin-right:8px"></span>Dados do Cliente';
+      lblNome.textContent = 'Nome completo';
+    }
+  }
+
+  function v(id) { return (document.getElementById(id)?.value || '').trim(); }
+
+  function formatarData(str) {
+    if (!str) return '_____ de _____________ de ______';
+    const [y, m, d] = str.split('-');
+    const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+    return `${parseInt(d)} de ${meses[parseInt(m)-1]} de ${y}`;
+  }
+
+  // Gera qualificação completa (com ou sem menor)
+  function qualificacaoOutorgante() {
+    const nome = v('nome') || '[NOME]';
+    const nac = v('nacionalidade');
+    const ec = v('estadoCivil');
+    const prof = v('profissao');
+    const rg = v('rg');
+    const orgao = v('orgao');
+    const cpf = v('cpf');
+    const fil = v('filiacao');
+    const end = v('endereco');
+
+    if (eMenor) {
+      // Menor + representante
+      const menorNome = v('menor-nome') || '[NOME DO MENOR]';
+      const menorNac = v('menor-nac') || 'brasileiro(a)';
+      const menorCpf = v('menor-cpf');
+      const parentesco = v('menor-parentesco') || 'genitora';
+
+      let txt = `<strong>${menorNome}</strong>, ${menorNac}, menor impúbere`;
+      if (menorCpf) txt += `, portador(a) do CPF nº ${menorCpf}`;
+      txt += `, neste ato representado(a) por sua ${parentesco} <strong>${nome}</strong>`;
+      const partes = [nac, ec].filter(Boolean);
+      if (partes.length) txt += `, ${partes.join(', ')}`;
+      if (rg) txt += `, portador(a) da cédula de RG nº ${rg}${orgao ? ' ' + orgao : ''}`;
+      if (cpf) txt += `, inscrita no CPF sob o nº ${cpf}`;
+      if (fil) txt += `, filha de ${fil}`;
+      if (end) txt += `, residente e domiciliada na ${end}`;
+      return txt;
+    } else {
+      let txt = `<strong>${nome}</strong>`;
+      const partes = [nac, ec, prof].filter(Boolean);
+      if (partes.length) txt += `, ${partes.join(', ')}`;
+      if (rg) txt += `, portador(a) da cédula de RG nº ${rg}${orgao ? ' ' + orgao : ''}`;
+      if (cpf) txt += `, inscrito(a) no CPF sob o nº ${cpf}`;
+      if (fil) txt += `, filha de ${fil}`;
+      if (end) txt += `, residente e domiciliado(a) na ${end}`;
+      return txt;
+    }
+  }
+
+  // Quem assina no documento (nome principal para assinatura)
+  function nomeAssinante() {
+    return eMenor ? (v('nome') || '[NOME DO RESPONSÁVEL]') : (v('nome') || '[NOME]');
+  }
+
+  function nomeDocumento() {
+    return eMenor ? (v('menor-nome') || '[NOME DO MENOR]') : (v('nome') || '[NOME]');
+  }
+
+  function gerarDocumento() {
+    const nome = v('nome');
+    const cpf = v('cpf');
+    const rg = v('rg');
+
+    if (!nome) { alert('⚠ Preencha o nome antes de gerar.'); document.getElementById('nome').focus(); return; }
+    if (!cpf && !rg) { alert('⚠ Preencha ao menos o RG ou CPF.'); return; }
+    if (eMenor && !v('menor-nome')) { alert('⚠ Preencha o nome do menor.'); document.getElementById('menor-nome').focus(); return; }
+
+    const data = formatarData(v('data'));
+    const cidade = v('cidade') || 'Frutal';
+    const uf = v('uf') || 'MG';
+    const nomeSign = nomeAssinante();
+    const profSign = v('profissao');
+
+    let html = '';
+    let label = '';
+
+    /* ─── PROCURAÇÃO ─── */
+    if (abaAtual === 'procuracao') {
+      label = 'Procuração Ad Judicia';
+      const poderes = v('proc-poderes');
+      html = `
+        <div class="doc-titulo">P R O C U R A Ç Ã O</div>
+        <p><strong>OUTORGANTE:</strong> ${qualificacaoOutorgante()}.</p>
+        <p><strong>OUTORGADOS:</strong> <strong>CACILDA TEIXEIRA DE SOUZA</strong>, brasileira, casada, advogada inscrita na OAB/MG 159.859, com escritório profissional na Rua Gonçalves Dias, nº 308 – Centro, na cidade de Frutal/MG.</p>
+        <p><strong>PODERES:</strong> ${poderes}</p>
+        <div class="local-data">${cidade}, ${data}.</div>
+        <div class="assinaturas">
+          <div class="ass-grid">
+            <div class="ass-bloco">
+              <div class="ass-linha"></div>
+              <div class="ass-nome">${nomeSign}</div>
+              <div class="ass-qual">Outorgante${eMenor ? ' (Responsável Legal)' : ''}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* ─── DECLARAÇÃO DE HIPOSSUFICIÊNCIA ─── */
+    else if (abaAtual === 'hipos') {
+      label = 'Declaração de Hipossuficiência';
+      html = `
+        <div class="doc-titulo">DECLARAÇÃO PARA FINS DE ASSISTÊNCIA JUDICIÁRIA GRATUITA</div>
+        <p>${qualificacaoOutorgante()}.</p>
+        <p>Nos termos da Lei nº 7.115 de Agosto de 1950, combinada com a Lei nº 1.060 de 05 de Fevereiro de 1950 e suas modificações subsequentes, sujeitando-se às sanções cíveis e administrativas e criminais, previstas nas legislações aplicáveis, declara ser pobre no sentido legal, tendo em vista que os gastos com as despesas processuais viriam em prejuízo de seu sustento e de seus familiares.</p>
+        <div class="local-data">${cidade}, ${data}.</div>
+        <div class="assinaturas">
+          <div class="ass-grid">
+            <div class="ass-bloco">
+              <div class="ass-linha"></div>
+              <div class="ass-nome">${nomeSign}</div>
+              <div class="ass-qual">Declarante${eMenor ? ' (Responsável Legal)' : ''}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* ─── CONTRATO DE HONORÁRIOS ─── */
+    else {
+      label = 'Contrato de Honorários Advocatícios';
+      const servico = v('cont-servico') || '[DESCREVER O SERVIÇO]';
+      const valor = v('cont-valor') || '[VALOR]';
+      const pct = v('cont-pct-atrasado');
+      const parcBenef = v('cont-parcelas-beneficio');
+      const pagto = v('cont-pagamento') || '[FORMA DE PAGAMENTO]';
+
+      // Monta texto de remuneração
+      let remuneracao = `a importância de ${valor}`;
+      if (pct) remuneracao += `, mais ${pct} sobre o valor dos pagamentos atrasados`;
+      if (parcBenef) remuneracao += ` e mais ${parcBenef}`;
+
+      let pagtoDetalhado = `<p>Que serão pagos da seguinte forma:</p><p style="padding-left:2em">— ${pagto};</p>`;
+      if (pct) pagtoDetalhado += `<p style="padding-left:2em">— ${pct} dos valores apurados referentes ao pagamento dos benefícios atrasados, que serão pagos após a liberação desses valores;</p>`;
+      if (parcBenef) pagtoDetalhado += `<p style="padding-left:2em">— ${parcBenef}, após a implementação do mesmo, cujo pagamento poderá ser combinado com a CONSTITUÍDA.</p>`;
+
+      html = `
+        <div class="doc-titulo">CONTRATO DE HONORÁRIOS ADVOCATÍCIOS</div>
+        <p>Pelo presente instrumento de contrato de prestação de serviços, de um lado <strong>CACILDA TEIXEIRA DE SOUZA</strong>, brasileira, casada, advogada inscrita na OAB/MG nº 159.859, com escritório profissional na Rua Oswaldo Cruz, nº 274 – Centro, na cidade de Frutal/MG. Adiante denominada simplesmente <strong>CONSTITUÍDO</strong> e, de outro ${qualificacaoOutorgante()}. A partir de agora em diante chamado de <strong>CONSTITUINTE</strong>, têm justo e contratado o seguinte:</p>
+
+        <p><span class="clausula-title">1)</span> O CONSTITUÍDO, face ao mandato extrajudicial que lhe foi outorgado pela CONSTITUINTE, na qualidade de Procurador e advogado, obriga-se a prestar serviços profissionais para propor processo judicial, comprometendo-se a acompanhá-lo em qualquer juízo, até final decisão.</p>
+
+        <p>A CONSTITUINTE pagará ao CONSTITUÍDO, em remuneração dos serviços contratados (<strong>${servico}</strong>), ${remuneracao}.</p>
+
+        ${pagtoDetalhado}
+
+        <p>A CONSTITUINTE obriga-se a fornecer ao CONSTITUÍDO todos os documentos que lhe forem solicitados, dentro do prazo legal, providência essa necessária ao perfeito andamento do processo.</p>
+
+        <p><span class="clausula-title">2)</span> As custas e despesas decorrentes de xerox e/ou outros documentos, que porventura forem necessários, correrão por conta do CONSTITUINTE.</p>
+
+        <p><span class="clausula-title">3)</span> O presente contrato abrange a prestação contida no item 01 (um) deste instrumento. Quaisquer ações subsequentes, mesmo que correlatas, ficam sujeitas à celebração de um novo Contrato.</p>
+
+        <p><span class="clausula-title">4)</span> Eventuais honorários de sucumbência serão revertidos em favor do CONSTITUÍDO, nos termos do art. 22 da Lei n. 8.906/94 (Estatuto da Advocacia), sem prejuízo dos honorários estabelecidos na cláusula "01", desvinculado do presente contrato e isento de qualquer desconto.</p>
+
+        <p><span class="clausula-title">5)</span> Quaisquer despesas que se fizerem necessárias para que o CONSTITUÍDO cumpra o presente contrato, correrão única e exclusivamente por conta do CONSTITUINTE.</p>
+
+        <p><span class="clausula-title">7)</span> A obrigação relativa ao pagamento dos honorários transmite-se aos herdeiros e sucessores do CONSTITUINTE.</p>
+
+        <p><span class="clausula-title">8)</span> Fica eleito o foro da Comarca de ${cidade}/${uf}, para dirimir qualquer dúvida ou questão oriunda do presente contrato, não obstante a idoneidade e sinceridade do propósito de ambas as partes.</p>
+
+        <p>E por estarem as partes assim contratadas, firmam o presente contrato particular, consciente e espontaneamente, em duas vias de igual teor, na presença de 02 testemunhas.</p>
+
+        <div class="local-data">${cidade}, ${data}.</div>
+
+        <div class="assinaturas">
+          <div class="ass-grid">
+            <div class="ass-bloco">
+              <div class="ass-linha"></div>
+              <div class="ass-nome">CACILDA TEIXEIRA DE SOUZA</div>
+              <div class="ass-qual">Constituído</div>
+              <div class="ass-oab">OAB/MG 159.859</div>
+            </div>
+            <div class="ass-bloco">
+              <div class="ass-linha"></div>
+              <div class="ass-nome">${nomeSign.toUpperCase()}</div>
+              <div class="ass-qual">Constituinte${eMenor ? ' (Responsável Legal)' : ''}</div>
+            </div>
+          </div>
+
+          <div class="testemunhas-titulo">TESTEMUNHAS:</div>
+          <div class="test-grid">
+            <div class="test-bloco">
+              <div class="test-linha"></div>
+              <div style="font-size:10pt">1ª Testemunha</div>
+            </div>
+            <div class="test-bloco">
+              <div class="test-linha"></div>
+              <div style="font-size:10pt">2ª Testemunha</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    document.getElementById('doc-label').textContent = label;
+    document.getElementById('doc-conteudo').innerHTML = html;
+    document.getElementById('tela-form').style.display = 'none';
+    document.getElementById('tela-doc').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  function voltar() {
+    document.getElementById('tela-form').style.display = 'block';
+    document.getElementById('tela-doc').style.display = 'none';
+    window.scrollTo(0, 0);
+  }
+
+  function limpar() {
+    if (!confirm('Limpar todos os campos?')) return;
+    ['nome','rg','orgao','cpf','filiacao','endereco','profissao',
+     'menor-nome','menor-nac','menor-cpf',
+     'cont-servico','cont-valor','cont-pct-atrasado','cont-parcelas-beneficio','cont-pagamento'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    document.getElementById('chk-menor').checked = false;
+    document.getElementById('bloco-menor').classList.remove('show');
+    eMenor = false;
+    document.getElementById('nacionalidade').value = 'brasileiro(a)';
+    document.getElementById('menor-nac').value = 'brasileiro(a)';
+    document.getElementById('cidade').value = 'Frutal';
+    document.getElementById('uf').value = 'MG';
+    document.getElementById('estadoCivil').selectedIndex = 0;
+    document.getElementById('data').value = new Date().toISOString().split('T')[0];
+    toggleMenor();
+  }
+</script>
+</body>
+</html>
