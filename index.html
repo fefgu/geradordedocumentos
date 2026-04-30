@@ -149,6 +149,27 @@
   label { font-size: 11px; font-weight: 500; color: var(--muted); letter-spacing: 0.03em; }
   label .req { color: var(--danger); }
 
+  /* Wrapper para input + botão exemplo */
+  .input-ex { display: flex; gap: 5px; align-items: center; }
+  .input-ex input, .input-ex textarea { flex: 1; }
+  .btn-ex {
+    flex-shrink: 0;
+    padding: 0 8px;
+    height: 36px;
+    font-size: 10px;
+    font-weight: 500;
+    font-family: 'Jost', sans-serif;
+    letter-spacing: 0.04em;
+    border: 1px dashed var(--gold);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--gold);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .btn-ex:hover { background: var(--gold); color: #fff; border-style: solid; }
+
   input, select, textarea {
     font-family: 'Jost', sans-serif;
     font-size: 13px;
@@ -629,15 +650,21 @@
           </div>
           <div class="field">
             <label>Forma de pagamento do valor fixo</label>
-            <input id="prev-pagamento" placeholder="Ex: em duas parcelas nos meses 03 e 04/2026" />
+            <div class="input-ex"><input id="prev-pagamento" placeholder="Ex: em duas parcelas nos meses 03 e 04/2026" /><button class="btn-ex" onclick="usarEx('prev-pagamento')" type="button">usar ex.</button></div>
           </div>
           <div class="field">
             <label>% sobre benefícios atrasados</label>
-            <input id="prev-pct-atrasado" placeholder="Ex: 35%" />
+            <div class="input-ex">
+              <input id="prev-pct-atrasado" placeholder="35" inputmode="numeric" maxlength="5" oninput="mascaraPct(this)" style="max-width:100px" />
+              <button class="btn-ex" onclick="usarEx('prev-pct-atrasado')" type="button">usar ex.</button>
+            </div>
           </div>
           <div class="field">
             <label>Parcelas do benefício após concessão</label>
-            <input id="prev-parcelas" placeholder="Ex: 4 parcelas do benefício" />
+            <div class="input-ex">
+              <input id="prev-parcelas" placeholder="Ex: 4 parcelas do benefício" />
+              <button class="btn-ex" onclick="usarEx('prev-parcelas')" type="button">usar ex.</button>
+            </div>
           </div>
         </div>
       </div>
@@ -653,15 +680,21 @@
           </div>
           <div class="field">
             <label>Forma de pagamento do valor fixo</label>
-            <input id="aux-pagamento" placeholder="Ex: em duas parcelas nos meses 03 e 04/2026" />
+            <div class="input-ex"><input id="aux-pagamento" placeholder="Ex: em duas parcelas nos meses 03 e 04/2026" /><button class="btn-ex" onclick="usarEx('aux-pagamento')" type="button">usar ex.</button></div>
           </div>
           <div class="field">
             <label>% sobre benefícios atrasados</label>
-            <input id="aux-pct-atrasado" placeholder="Ex: 35%" />
+            <div class="input-ex">
+              <input id="aux-pct-atrasado" placeholder="35" inputmode="numeric" maxlength="5" oninput="mascaraPct(this)" style="max-width:100px" />
+              <button class="btn-ex" onclick="usarEx('aux-pct-atrasado')" type="button">usar ex.</button>
+            </div>
           </div>
           <div class="field">
             <label>Parcelas do benefício após concessão</label>
-            <input id="aux-parcelas" placeholder="Ex: 4 parcelas do benefício" />
+            <div class="input-ex">
+              <input id="aux-parcelas" placeholder="Ex: 4 parcelas do benefício" />
+              <button class="btn-ex" onclick="usarEx('aux-parcelas')" type="button">usar ex.</button>
+            </div>
           </div>
         </div>
       </div>
@@ -677,11 +710,15 @@
           </div>
           <div class="field">
             <label>Forma de pagamento do valor fixo</label>
-            <input id="trab-pagamento" placeholder="Ex: no ato da assinatura deste contrato" />
+            <div class="input-ex"><input id="trab-pagamento" placeholder="Ex: no ato da assinatura deste contrato" /><button class="btn-ex" onclick="usarEx('trab-pagamento')" type="button">usar ex.</button></div>
           </div>
           <div class="field col2">
             <label>% sobre o valor obtido no acordo/sentença <span class="req">*</span></label>
-            <input id="trab-pct" placeholder="Ex: 35% sobre o valor bruto obtido em acordo ou sentença, incluindo FGTS e Seguro Desemprego" />
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <input id="trab-pct-num" placeholder="35" inputmode="numeric" maxlength="5" oninput="mascaraPctTrab(this)" style="max-width:90px" />
+              <span style="font-size:12px; color:var(--muted);">% sobre o valor bruto obtido em acordo ou sentença, incluindo FGTS e Seguro Desemprego</span>
+            </div>
+            <input id="trab-pct" type="hidden" />
           </div>
         </div>
       </div>
@@ -697,11 +734,11 @@
           </div>
           <div class="field">
             <label>Forma de pagamento do valor fixo</label>
-            <input id="outros-pagamento" placeholder="Ex: 50% na assinatura e 50% na distribuição" />
+            <div class="input-ex"><input id="outros-pagamento" placeholder="Ex: 50% na assinatura e 50% na distribuição" /><button class="btn-ex" onclick="usarEx('outros-pagamento')" type="button">usar ex.</button></div>
           </div>
           <div class="field col2">
             <label>Honorários de êxito / outras condições</label>
-            <textarea id="outros-livre" style="min-height:70px" placeholder="Ex: 35% sobre o valor efetivamente obtido, a ser pago após o recebimento pelo CONSTITUINTE"></textarea>
+            <div class="input-ex"><textarea id="outros-livre" style="min-height:70px" placeholder="Ex: 35% sobre o valor efetivamente obtido, a ser pago após o recebimento pelo CONSTITUINTE"></textarea><button class="btn-ex" onclick="usarEx('outros-livre')" type="button" style="height:auto;align-self:stretch;">usar ex.</button></div>
           </div>
         </div>
       </div>
@@ -757,6 +794,31 @@
   let abaAtual = 'procuracao';
   let eMenor = false;
   let ePJ = false;
+
+  // ══════════ USAR EXEMPLO ══════════
+  function usarEx(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    // Campos de % com máscara — valor fixo direto
+    const valoresPct = {
+      'prev-pct-atrasado': '35',
+      'aux-pct-atrasado':  '35'
+    };
+    if (valoresPct[id] !== undefined) {
+      el.value = valoresPct[id];
+      mascaraPct(el);
+      el.focus();
+      return;
+    }
+
+    // Demais campos — pega o placeholder após "Ex: " ou "Ex."
+    const ph = el.placeholder || '';
+    const match = ph.match(/^Ex[:.]\s*(.+)/i);
+    if (match) el.value = match[1].trim();
+    if (el.oninput) el.dispatchEvent(new Event('input'));
+    el.focus();
+  }
 
   // Data de hoje
   const hoje = new Date();
@@ -1070,9 +1132,13 @@
 
         <p><span class="clausula-title">5)</span> Quaisquer despesas que se fizerem necessárias para que o CONSTITUÍDO cumpra o presente contrato, correrão única e exclusivamente por conta do CONSTITUINTE.</p>
 
-        <p><span class="clausula-title">7)</span> A obrigação relativa ao pagamento dos honorários transmite-se aos herdeiros e sucessores do CONSTITUINTE.</p>
+        <p><span class="clausula-title">6)</span> No caso de desistência da ação por parte do CONSTITUINTE, sem motivo justificável, após o prazo de 15 (quinze) dias contados da assinatura deste instrumento, será devida ao CONSTITUÍDO uma multa compensatória equivalente a 50% (cinquenta por cento) dos honorários de êxito que seriam devidos caso obtido resultado favorável, calculados sobre o valor atribuído à causa ou sobre o benefício pleiteado, a critério do CONSTITUÍDO. Caso a desistência ocorra dentro do prazo de 15 (quinze) dias da assinatura, ficará devido exclusivamente o valor fixo estabelecido na cláusula 1ª deste contrato, sem acréscimos. O não pagamento dos valores devidos em razão da desistência facultará ao CONSTITUÍDO, a seu exclusivo critério, a adoção das seguintes medidas: inclusão do nome do CONSTITUINTE nos cadastros de proteção ao crédito, encaminhamento a protesto extrajudicial e/ou execução judicial do débito, respondendo o CONSTITUINTE por todas as custas e honorários advocatícios decorrentes.</p>
 
-        <p><span class="clausula-title">8)</span> Fica eleito o foro da Comarca de ${cidade}/${uf}, para dirimir qualquer dúvida ou questão oriunda do presente contrato, não obstante a idoneidade e sinceridade do propósito de ambas as partes.</p>
+        <p><span class="clausula-title">7)</span> No caso de revogação do mandato ou substituição do CONSTITUÍDO por outro profissional, por iniciativa do CONSTITUINTE, a qualquer tempo e independentemente de decisão judicial favorável, serão devidos integralmente os honorários contratados, proporcionalmente aos serviços já prestados, sem prejuízo da multa compensatória prevista na cláusula anterior, caso aplicável. Na hipótese de o processo já estar em fase de instrução, com audiência designada ou em grau de recurso, os honorários serão devidos integralmente, tendo em vista o trabalho já desenvolvido pelo CONSTITUÍDO até aquele momento. O CONSTITUÍDO reterá cópia de todos os documentos e peças processuais produzidas até a data da revogação, facultando-lhe ainda o exercício do direito de retenção dos autos até o pagamento integral dos honorários devidos.</p>
+
+        <p><span class="clausula-title">8)</span> A obrigação relativa ao pagamento dos honorários transmite-se aos herdeiros e sucessores do CONSTITUINTE.</p>
+
+        <p><span class="clausula-title">9)</span> Fica eleito o foro da Comarca de ${cidade}/${uf}, para dirimir qualquer dúvida ou questão oriunda do presente contrato, não obstante a idoneidade e sinceridade do propósito de ambas as partes.</p>
 
         <p>E por estarem as partes assim contratadas, firmam o presente contrato particular, consciente e espontaneamente, em duas vias de igual teor, na presença de 02 testemunhas.</p>
 
@@ -1143,7 +1209,7 @@
      'cont-servico',
      'prev-valor','prev-valor-num','prev-pagamento','prev-pct-atrasado','prev-parcelas',
      'aux-valor','aux-valor-num','aux-pagamento','aux-pct-atrasado','aux-parcelas',
-     'trab-valor','trab-valor-num','trab-pagamento','trab-pct',
+     'trab-valor','trab-valor-num','trab-pagamento','trab-pct','trab-pct-num',
      'outros-valor','outros-valor-num','outros-pagamento','outros-livre'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
@@ -1234,10 +1300,27 @@
 
   // ══════════ CEP ══════════
 
+  function mascaraPct(el) {
+    let val = el.value.replace(/[^\d,\.]/g, '').replace(',', '.').replace('%', '');
+    const match = val.match(/^\d{0,3}(\.\d{0,1})?/);
+    val = match ? match[0] : '';
+    el.value = val ? val + '%' : '';
+    const pos = el.value.length - 1;
+    if (el.value.endsWith('%')) el.setSelectionRange(pos, pos);
+  }
+
+  function mascaraPctTrab(el) {
+    const num = el.value.replace(/\D/g, '').slice(0, 3);
+    el.value = num;
+    const hidden = document.getElementById('trab-pct');
+    hidden.value = num ? `${num}% sobre o valor bruto obtido em acordo ou sentença, incluindo FGTS e Seguro Desemprego` : '';
+  }
+
+
   function mascaraCEP(el) {
-    let v = el.value.replace(/\D/g, '').slice(0,8);
-    if (v.length > 5) v = v.slice(0,5) + '-' + v.slice(5);
-    el.value = v;
+    let vCep = el.value.replace(/\D/g, '').slice(0,8);
+    if (vCep.length > 5) vCep = vCep.slice(0,5) + '-' + vCep.slice(5);
+    el.value = vCep;
   }
 
   async function buscarCEP() {
