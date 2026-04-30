@@ -307,7 +307,7 @@
     background: #fff;
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 3cm 3cm 3.5cm;
+    padding: 2.5cm 2.5cm 1.5cm;
     font-family: 'Courier New', Courier, monospace;
     font-size: 11pt;
     line-height: 1.9;
@@ -344,7 +344,7 @@
 
   /* PRINT */
   @media print {
-    @page { margin: 2cm; size: A4; }
+    @page { margin-top: 2.5cm; margin-left: 2.5cm; margin-right: 2.5cm; margin-bottom: 1.5cm; size: A4; }
     * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     body { background: #fff; font-size: 12pt; }
     .header, #tela-form, .doc-toolbar, .no-print { display: none !important; }
@@ -353,7 +353,7 @@
     .doc-paper {
       border: none;
       box-shadow: none;
-      padding: 1.5cm 2.5cm 2cm;
+      padding: 0;
       page-break-inside: avoid;
     }
     .doc-letterhead-name { color: #2E2E5A !important; }
@@ -496,6 +496,10 @@
             <label>Endereço da empresa</label>
             <input id="pj-endereco" placeholder="Ex: Rua das Flores, nº 100, Centro" />
           </div>
+          <div class="field">
+            <label>CEP da empresa</label>
+            <input id="pj-cep" placeholder="00000-000" maxlength="9" inputmode="numeric" oninput="mascaraCEP(this)" onblur="buscarCEPPJ()" />
+          </div>
         </div>
         <div class="gap-top grid2">
           <div class="field">
@@ -566,6 +570,10 @@
           <input id="endereco" placeholder="Ex: Rua Nova Ponte, nº 1188, Bairro Progresso" />
         </div>
         <div class="field">
+          <label>CEP</label>
+          <input id="cep" placeholder="00000-000" maxlength="9" inputmode="numeric" oninput="mascaraCEP(this)" onblur="buscarCEP()" />
+        </div>
+        <div class="field">
           <label>Cidade <span class="req">*</span></label>
           <input id="cidade" value="Frutal" />
         </div>
@@ -615,7 +623,9 @@
         <div class="grid2">
           <div class="field">
             <label>Valor fixo dos honorários</label>
-            <input id="prev-valor" placeholder="Ex: R$ 500,00 (Quinhentos reais)" />
+            <input id="prev-valor-num" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this,'prev-valor')" style="max-width:160px" />
+            <input id="prev-valor" type="hidden" />
+            <span id="prev-valor-extenso" style="font-size:11px;color:var(--muted);margin-top:3px;display:block;min-height:16px;"></span>
           </div>
           <div class="field">
             <label>Forma de pagamento do valor fixo</label>
@@ -637,7 +647,9 @@
         <div class="grid2">
           <div class="field">
             <label>Valor fixo dos honorários</label>
-            <input id="aux-valor" placeholder="Ex: R$ 1.000,00 (Um mil reais)" />
+            <input id="aux-valor-num" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this,'aux-valor')" style="max-width:160px" />
+            <input id="aux-valor" type="hidden" />
+            <span id="aux-valor-extenso" style="font-size:11px;color:var(--muted);margin-top:3px;display:block;min-height:16px;"></span>
           </div>
           <div class="field">
             <label>Forma de pagamento do valor fixo</label>
@@ -659,7 +671,9 @@
         <div class="grid2">
           <div class="field">
             <label>Valor fixo dos honorários</label>
-            <input id="trab-valor" placeholder="Ex: R$ 300,00 (Trezentos reais)" />
+            <input id="trab-valor-num" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this,'trab-valor')" style="max-width:160px" />
+            <input id="trab-valor" type="hidden" />
+            <span id="trab-valor-extenso" style="font-size:11px;color:var(--muted);margin-top:3px;display:block;min-height:16px;"></span>
           </div>
           <div class="field">
             <label>Forma de pagamento do valor fixo</label>
@@ -677,7 +691,9 @@
         <div class="grid2">
           <div class="field">
             <label>Valor fixo dos honorários</label>
-            <input id="outros-valor" placeholder="Ex: R$ 1.000,00 (Hum mil reais)" />
+            <input id="outros-valor-num" placeholder="0,00" inputmode="numeric" oninput="mascaraMoeda(this,'outros-valor')" style="max-width:160px" />
+            <input id="outros-valor" type="hidden" />
+            <span id="outros-valor-extenso" style="font-size:11px;color:var(--muted);margin-top:3px;display:block;min-height:16px;"></span>
           </div>
           <div class="field">
             <label>Forma de pagamento do valor fixo</label>
@@ -710,12 +726,22 @@
     <div class="doc-toolbar no-print">
       <span class="doc-toolbar-title" id="doc-label">Documento</span>
       <button class="btn" onclick="voltar()">← Voltar e editar</button>
+      <button class="btn" onclick="abrirEdicao()" id="btn-editar" style="display:none">✏️ Editar</button>
       <button class="btn primary" onclick="window.print()">🖨 Imprimir</button>
     </div>
     <div class="doc-paper" id="doc-conteudo"></div>
   </div>
 
-  <!-- ══════════════ TELA HISTÓRICO ══════════════ -->
+  <!-- ══════════════ TELA EDIÇÃO ══════════════ -->
+  <div id="tela-edicao" style="display:none">
+    <div class="doc-toolbar no-print">
+      <span class="doc-toolbar-title">Editando documento</span>
+      <button class="btn" onclick="cancelarEdicao()">✕ Cancelar</button>
+      <button class="btn primary" onclick="salvarEdicao()">💾 Salvar alterações</button>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px;">Clique sobre qualquer texto para editar diretamente no documento.</div>
+    <div class="doc-paper" id="doc-editor" contenteditable="true" style="outline:none; border-color:var(--navy);"></div>
+  </div>
   <div id="tela-historico">
     <div class="hist-toolbar no-print">
       <span class="hist-toolbar-title">Histórico de Documentos</span>
@@ -827,12 +853,14 @@
     const cpf = v('cpf');
     const fil = v('filiacao');
     const end = v('endereco');
+    const cep = v('cep') ? `, CEP ${v('cep')}` : '';
 
     if (ePJ) {
       const razao    = v('pj-razao')     || '[RAZÃO SOCIAL]';
       const cnpj     = v('pj-cnpj')      || '[CNPJ]';
       const ie       = v('pj-ie');
       const endPJ    = v('pj-endereco')  || end;
+      const cepPJ    = v('pj-cep') ? `, CEP ${v('pj-cep')}` : '';
       const repNome  = v('pj-rep-nome')  || '[REPRESENTANTE]';
       const repCargo = v('pj-rep-cargo') || 'representante legal';
       const repCPF   = v('pj-rep-cpf');
@@ -840,7 +868,7 @@
 
       let txt = `<strong>${razao.toUpperCase()}</strong>, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${cnpj}`;
       if (ie) txt += `, Inscrição Estadual nº ${ie}`;
-      if (endPJ) txt += `, com sede na ${endPJ}, na cidade de ${v('cidade')}/${v('uf')}`;
+      if (endPJ) txt += `, com sede na ${endPJ}, na cidade de ${v('cidade')}/${v('uf')}${cepPJ}`;
       txt += `, neste ato representada por seu ${repCargo} <strong>${repNome.toUpperCase()}</strong>`;
       if (repRG)  txt += `, portador(a) do RG nº ${repRG}`;
       if (repCPF) txt += `, inscrito(a) no CPF sob o nº ${repCPF}`;
@@ -860,7 +888,7 @@
       if (rg) txt += `, portador(a) da cédula de RG nº ${rg}${orgao ? ' ' + orgao : ''}`;
       if (cpf) txt += `, inscrita no CPF sob o nº ${cpf}`;
       if (fil) txt += `, filha de ${fil}`;
-      if (end) txt += `, residente e domiciliada na ${end}, na cidade de ${v('cidade')}/${v('uf')}`;
+      if (end) txt += `, residente e domiciliada na ${end}, na cidade de ${v('cidade')}/${v('uf')}${cep}`;
       return txt;
 
     } else {
@@ -870,7 +898,7 @@
       if (rg) txt += `, portador(a) da cédula de RG nº ${rg}${orgao ? ' ' + orgao : ''}`;
       if (cpf) txt += `, inscrito(a) no CPF sob o nº ${cpf}`;
       if (fil) txt += `, filha de ${fil}`;
-      if (end) txt += `, residente e domiciliado(a) na ${end}, na cidade de ${v('cidade')}/${v('uf')}`;
+      if (end) txt += `, residente e domiciliado(a) na ${end}, na cidade de ${v('cidade')}/${v('uf')}${cep}`;
       return txt;
     }
   }
@@ -1084,6 +1112,8 @@
   }
 
   function voltar() {
+    idEditando = null;
+    document.getElementById('btn-editar').style.display = 'none';
     document.getElementById('tela-form').style.display = 'block';
     document.getElementById('tela-doc').style.display = 'none';
     window.scrollTo(0, 0);
@@ -1107,14 +1137,14 @@
 
   function limpar() {
     if (!confirm('Limpar todos os campos?')) return;
-    ['nome','rg','orgao','cpf','filiacao','endereco','profissao',
+    ['nome','rg','orgao','cpf','filiacao','endereco','profissao','cep',
      'menor-nome','menor-nac','menor-cpf',
-     'pj-razao','pj-cnpj','pj-ie','pj-endereco','pj-rep-nome','pj-rep-cargo','pj-rep-cpf','pj-rep-rg',
+     'pj-razao','pj-cnpj','pj-ie','pj-endereco','pj-cep','pj-rep-nome','pj-rep-cargo','pj-rep-cpf','pj-rep-rg',
      'cont-servico',
-     'prev-valor','prev-pagamento','prev-pct-atrasado','prev-parcelas',
-     'aux-valor','aux-pagamento','aux-pct-atrasado','aux-parcelas',
-     'trab-valor','trab-pagamento','trab-pct',
-     'outros-valor','outros-pagamento','outros-livre'].forEach(id => {
+     'prev-valor','prev-valor-num','prev-pagamento','prev-pct-atrasado','prev-parcelas',
+     'aux-valor','aux-valor-num','aux-pagamento','aux-pct-atrasado','aux-parcelas',
+     'trab-valor','trab-valor-num','trab-pagamento','trab-pct',
+     'outros-valor','outros-valor-num','outros-pagamento','outros-livre'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
@@ -1132,25 +1162,163 @@
     document.getElementById('cont-area').selectedIndex = 0;
     trocarAreaContrato();
     document.getElementById('data').value = new Date().toISOString().split('T')[0];
+    ['prev-valor-extenso','aux-valor-extenso','trab-valor-extenso','outros-valor-extenso'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.textContent = '';
+    });
     toggleTipo();
   }
-  // ══════════ HISTÓRICO ══════════
+  // ══════════ MÁSCARA MONETÁRIA + EXTENSO ══════════
+
+  const unidades = ['','um','dois','três','quatro','cinco','seis','sete','oito','nove','dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
+  const dezenas  = ['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
+  const centenas = ['','cem','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
+
+  function numExtenso(n) {
+    if (n === 0) return 'zero';
+    if (n < 0)  return 'menos ' + numExtenso(-n);
+
+    const partes = [];
+
+    if (n >= 1000000) {
+      const m = Math.floor(n / 1000000);
+      partes.push(numExtenso(m) + (m === 1 ? ' milhão' : ' milhões'));
+      n %= 1000000;
+    }
+    if (n >= 1000) {
+      const mil = Math.floor(n / 1000);
+      partes.push(mil === 1 ? 'mil' : numExtenso(mil) + ' mil');
+      n %= 1000;
+    }
+    if (n >= 100) {
+      const c = Math.floor(n / 100);
+      partes.push(n % 100 === 0 ? centenas[c] : (c === 1 ? 'cento' : centenas[c]));
+      n %= 100;
+    }
+    if (n >= 20) {
+      const d = Math.floor(n / 10);
+      const u = n % 10;
+      partes.push(u ? dezenas[d] + ' e ' + unidades[u] : dezenas[d]);
+      n = 0;
+    } else if (n > 0) {
+      partes.push(unidades[n]);
+      n = 0;
+    }
+
+    return partes.join(' e ');
+  }
+
+  function valorCompleto(centavos) {
+    const reais = Math.floor(centavos / 100);
+    const cts   = centavos % 100;
+    const rStr  = numExtenso(reais);
+    const label = reais === 1 ? 'real' : 'reais';
+    if (cts === 0) return `${rStr} ${label}`;
+    const cStr  = numExtenso(cts);
+    const cLabel= cts === 1 ? 'centavo' : 'centavos';
+    return `${rStr} ${label} e ${cStr} ${cLabel}`;
+  }
+
+  function mascaraMoeda(el, hiddenId) {
+    let digits = el.value.replace(/\D/g, '');
+    if (!digits) { el.value = ''; document.getElementById(hiddenId).value = ''; document.getElementById(hiddenId+'-extenso').textContent = ''; return; }
+    const centavos = parseInt(digits, 10);
+    const formatted = (centavos / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    el.value = formatted;
+    const extenso = valorCompleto(centavos);
+    const cap = extenso.charAt(0).toUpperCase() + extenso.slice(1);
+    // Valor para o documento: R$ 1.000,00 (Hum mil reais)
+    const valorDoc = `R$ ${formatted} (${cap})`;
+    document.getElementById(hiddenId).value = valorDoc;
+    document.getElementById(hiddenId+'-extenso').textContent = cap;
+  }
+
+  // ══════════ CEP ══════════
+
+  function mascaraCEP(el) {
+    let v = el.value.replace(/\D/g, '').slice(0,8);
+    if (v.length > 5) v = v.slice(0,5) + '-' + v.slice(5);
+    el.value = v;
+  }
+
+  async function buscarCEP() {
+    const cep = document.getElementById('cep').value.replace(/\D/g,'');
+    if (cep.length !== 8) return;
+    try {
+      const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const d = await r.json();
+      if (d.erro) return;
+      const end = document.getElementById('endereco');
+      if (!end.value) end.value = `${d.logradouro}${d.bairro ? ', ' + d.bairro : ''}`;
+      if (!document.getElementById('cidade').value || document.getElementById('cidade').value === 'Frutal') {
+        document.getElementById('cidade').value = d.localidade;
+        document.getElementById('uf').value = d.uf;
+      }
+    } catch(e) {}
+  }
+
+  async function buscarCEPPJ() {
+    const cep = document.getElementById('pj-cep').value.replace(/\D/g,'');
+    if (cep.length !== 8) return;
+    try {
+      const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const d = await r.json();
+      if (d.erro) return;
+      const end = document.getElementById('pj-endereco');
+      if (!end.value) end.value = `${d.logradouro}${d.bairro ? ', ' + d.bairro : ''}`;
+    } catch(e) {}
+  }
+
+  // ══════════ EDIÇÃO DO HISTÓRICO ══════════
+
+  let idEditando = null;
+
+  function abrirEdicao() {
+    if (idEditando === null) return;
+    const conteudo = document.getElementById('doc-conteudo').innerHTML;
+    document.getElementById('doc-editor').innerHTML = conteudo;
+    document.getElementById('tela-doc').style.display = 'none';
+    document.getElementById('tela-edicao').style.display = 'block';
+    window.scrollTo(0,0);
+  }
+
+  function cancelarEdicao() {
+    document.getElementById('tela-edicao').style.display = 'none';
+    document.getElementById('tela-doc').style.display = 'block';
+    window.scrollTo(0,0);
+  }
+
+  function salvarEdicao() {
+    const novoHtml = document.getElementById('doc-editor').innerHTML;
+    // Atualiza doc na tela
+    document.getElementById('doc-conteudo').innerHTML = novoHtml;
+    // Atualiza no histórico
+    if (idEditando !== null) {
+      let hist = JSON.parse(localStorage.getItem('cs_historico') || '[]');
+      const idx = hist.findIndex(h => h.id === idEditando);
+      if (idx !== -1) {
+        hist[idx].html = novoHtml;
+        hist[idx].editado = true;
+        localStorage.setItem('cs_historico', JSON.stringify(hist));
+      }
+    }
+    document.getElementById('tela-edicao').style.display = 'none';
+    document.getElementById('tela-doc').style.display = 'block';
+    window.scrollTo(0,0);
+  }
+
+
 
   function salvarHistorico(tipo, nome, html, aba) {
+    idEditando = null;
+    document.getElementById('btn-editar').style.display = 'none';
     const hist = JSON.parse(localStorage.getItem('cs_historico') || '[]');
     const agora = new Date();
-    hist.unshift({
-      id: Date.now(),
-      tipo,
-      aba,
-      nome,
-      data: agora.toLocaleDateString('pt-BR'),
-      hora: agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-      html
-    });
-    // Manter máximo 200 registros
+    const novoId = Date.now();
+    hist.unshift({ id: novoId, tipo, aba, nome, data: agora.toLocaleDateString('pt-BR'), hora: agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), html });
     if (hist.length > 200) hist.pop();
     localStorage.setItem('cs_historico', JSON.stringify(hist));
+    idEditando = novoId;
+    document.getElementById('btn-editar').style.display = '';
     atualizarContador();
   }
 
@@ -1185,15 +1353,15 @@
     const badges = { procuracao: 'proc', contrato: 'cont', hipos: 'hipos' };
     const labels = { procuracao: 'Procuração', contrato: 'Contrato', hipos: 'Hipossuficiência' };
 
-    lista.innerHTML = hist.map((item, idx) => `
+    lista.innerHTML = hist.map((item) => `
       <div class="hist-item" id="hist-${item.id}">
         <span class="hist-badge ${badges[item.aba] || 'proc'}">${labels[item.aba] || item.tipo}</span>
         <div class="hist-info">
-          <div class="hist-nome">${item.nome}</div>
+          <div class="hist-nome">${item.nome}${item.editado ? ' <span style="font-size:10px;color:var(--gold)">✏ editado</span>' : ''}</div>
           <div class="hist-meta">${item.data} às ${item.hora}</div>
         </div>
         <div class="hist-acoes">
-          <button class="hist-btn" onclick="reabrirDoc(${item.id})">Ver / Imprimir</button>
+          <button class="hist-btn" onclick="reabrirDoc(${item.id})">Ver / Editar</button>
           <button class="hist-btn del" onclick="excluirDoc(${item.id})">✕</button>
         </div>
       </div>
@@ -1204,8 +1372,10 @@
     const hist = JSON.parse(localStorage.getItem('cs_historico') || '[]');
     const item = hist.find(h => h.id === id);
     if (!item) return;
-    document.getElementById('doc-label').textContent = item.tipo;
+    idEditando = id;
+    document.getElementById('doc-label').textContent = item.tipo + (item.editado ? ' ✏️' : '');
     document.getElementById('doc-conteudo').innerHTML = item.html;
+    document.getElementById('btn-editar').style.display = '';
     document.getElementById('tela-historico').style.display = 'none';
     document.getElementById('tela-doc').style.display = 'block';
     window.scrollTo(0, 0);
