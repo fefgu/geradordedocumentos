@@ -602,8 +602,8 @@
           <input id="cep" placeholder="00000-000" maxlength="9" inputmode="numeric" oninput="mascaraCEP(this)" onblur="buscarCEP()" />
         </div>
         <div class="field">
-          <label>Cidade de assinatura</label>
-          <input id="cidade" value="Frutal" readonly style="background:#f0efed; color:#7a7a9a; cursor:not-allowed;" />
+          <label>Cidade <span class="req">*</span></label>
+          <input id="cidade" value="Frutal" />
         </div>
         <div class="field">
           <label>UF</label>
@@ -1033,7 +1033,7 @@
         <p><strong>OUTORGANTE:</strong> ${qualificacaoOutorgante()}.</p>
         <p><strong>OUTORGADOS:</strong> <strong>CACILDA TEIXEIRA DE SOUZA</strong>, brasileira, casada, advogada inscrita na OAB/MG 159.859, com escritório profissional na Rua Gonçalves Dias, nº 308 – Centro, na cidade de Frutal/MG.</p>
         <p><strong>PODERES:</strong> ${poderes}</p>
-        <div class="local-data">${cidade}, ${data}.</div>
+        <div class="local-data">Frutal, ${data}.</div>
         <div class="assinaturas">
           <div class="ass-grid">
             <div class="ass-bloco">
@@ -1053,7 +1053,7 @@
         <div class="doc-titulo">DECLARAÇÃO PARA FINS DE ASSISTÊNCIA JUDICIÁRIA GRATUITA</div>
         <p>${qualificacaoOutorgante()}.</p>
         <p>Nos termos do art. 99, §1º do Código de Processo Civil (Lei nº 13.105/2015), combinado com a Lei nº 7.115 de 08 de Agosto de 1950, sujeitando-se às sanções cíveis, administrativas e criminais previstas nas legislações aplicáveis, inclusive àquelas do art. 99, §2º do CPC, declara ser pobre no sentido legal, não possuindo condições de arcar com as custas processuais e os honorários advocatícios sem prejuízo do próprio sustento e de sua família.</p>
-        <div class="local-data">${cidade}, ${data}.</div>
+        <div class="local-data">Frutal, ${data}.</div>
         <div class="assinaturas">
           <div class="ass-grid">
             <div class="ass-bloco">
@@ -1177,7 +1177,7 @@
 
         <p>E por estarem as partes assim contratadas, firmam o presente contrato particular, consciente e espontaneamente, em duas vias de igual teor, na presença de 02 testemunhas.</p>
 
-        <div class="local-data">${cidade}, ${data}.</div>
+        <div class="local-data">Frutal, ${data}.</div>
 
         <div class="assinaturas">
           <div class="ass-grid">
