@@ -552,17 +552,24 @@
           <input id="nome" placeholder="Ex: GLEYCIELE DIAS ARAÚJO" />
         </div>
         <div class="field">
+          <label>Sexo <span class="req">*</span></label>
+          <select id="sexo" onchange="atualizarSexo()">
+            <option value="F">Feminino</option>
+            <option value="M">Masculino</option>
+          </select>
+        </div>
+        <div class="field">
           <label>Nacionalidade</label>
-          <input id="nacionalidade" value="brasileiro(a)" />
+          <input id="nacionalidade" value="brasileira" />
         </div>
         <div class="field">
           <label>Estado civil</label>
           <select id="estadoCivil">
-            <option>solteiro(a)</option>
-            <option>casado(a)</option>
-            <option>divorciado(a)</option>
-            <option>viúvo(a)</option>
-            <option>separado(a) judicialmente</option>
+            <option>solteira</option>
+            <option>casada</option>
+            <option>divorciada</option>
+            <option>viúva</option>
+            <option>separada judicialmente</option>
             <option>em união estável</option>
           </select>
         </div>
@@ -595,8 +602,8 @@
           <input id="cep" placeholder="00000-000" maxlength="9" inputmode="numeric" oninput="mascaraCEP(this)" onblur="buscarCEP()" />
         </div>
         <div class="field">
-          <label>Cidade <span class="req">*</span></label>
-          <input id="cidade" value="Frutal" />
+          <label>Cidade de assinatura</label>
+          <input id="cidade" value="Frutal" readonly style="background:#f0efed; color:#7a7a9a; cursor:not-allowed;" />
         </div>
         <div class="field">
           <label>UF</label>
@@ -895,6 +902,21 @@
   // Manter compatibilidade com referências antigas
   function toggleMenor() { toggleTipo(); }
 
+  function atualizarSexo() {
+    const M = document.getElementById('sexo').value === 'M';
+    // Nacionalidade
+    document.getElementById('nacionalidade').value = M ? 'brasileiro' : 'brasileira';
+    // Estado civil — recriar opções
+    const ec = document.getElementById('estadoCivil');
+    const idx = ec.selectedIndex;
+    ec.innerHTML = M
+      ? `<option>solteiro</option><option>casado</option><option>divorciado</option><option>viúvo</option><option>separado judicialmente</option><option>em união estável</option>`
+      : `<option>solteira</option><option>casada</option><option>divorciada</option><option>viúva</option><option>separada judicialmente</option><option>em união estável</option>`;
+    ec.selectedIndex = idx;
+    // Placeholder profissão
+    document.getElementById('profissao').placeholder = M ? 'Ex: comerciante' : 'Ex: autônoma';
+  }
+
   function v(id) { return (document.getElementById(id)?.value || '').trim(); }
 
   function formatarData(str) {
@@ -907,15 +929,22 @@
   // Gera qualificação completa (PJ, menor ou pessoa física)
   function qualificacaoOutorgante() {
     const nome = v('nome') || '[NOME]';
-    const nac = v('nacionalidade');
-    const ec = v('estadoCivil');
+    const nac  = v('nacionalidade');
+    const ec   = v('estadoCivil');
     const prof = v('profissao');
-    const rg = v('rg');
-    const orgao = v('orgao');
-    const cpf = v('cpf');
-    const fil = v('filiacao');
-    const end = v('endereco');
-    const cep = v('cep') ? `, CEP ${v('cep')}` : '';
+    const rg   = v('rg');
+    const orgao= v('orgao');
+    const cpf  = v('cpf');
+    const fil  = v('filiacao');
+    const end  = v('endereco');
+    const cep  = v('cep') ? `, CEP ${v('cep')}` : '';
+    const M    = document.getElementById('sexo').value === 'M';
+
+    // Termos por sexo
+    const portador  = M ? 'portador'   : 'portadora';
+    const inscrito  = M ? 'inscrito'   : 'inscrita';
+    const residente = M ? 'residente e domiciliado' : 'residente e domiciliada';
+    const filho     = M ? 'filho'      : 'filha';
 
     if (ePJ) {
       const razao    = v('pj-razao')     || '[RAZÃO SOCIAL]';
@@ -929,11 +958,11 @@
       const repRG    = v('pj-rep-rg');
 
       let txt = `<strong>${razao.toUpperCase()}</strong>, pessoa jurídica de direito privado, inscrita no CNPJ sob o nº ${cnpj}`;
-      if (ie) txt += `, Inscrição Estadual nº ${ie}`;
+      if (ie)    txt += `, Inscrição Estadual nº ${ie}`;
       if (endPJ) txt += `, com sede na ${endPJ}, na cidade de ${v('cidade')}/${v('uf')}${cepPJ}`;
       txt += `, neste ato representada por seu ${repCargo} <strong>${repNome.toUpperCase()}</strong>`;
-      if (repRG)  txt += `, portador(a) do RG nº ${repRG}`;
-      if (repCPF) txt += `, inscrito(a) no CPF sob o nº ${repCPF}`;
+      if (repRG)  txt += `, ${portador} do RG nº ${repRG}`;
+      if (repCPF) txt += `, ${inscrito} no CPF sob o nº ${repCPF}`;
       return txt;
 
     } else if (eMenor) {
@@ -943,24 +972,24 @@
       const parentesco = v('menor-parentesco') || 'genitora';
 
       let txt = `<strong>${menorNome.toUpperCase()}</strong>, ${menorNac}, menor impúbere`;
-      if (menorCpf) txt += `, portador(a) do CPF nº ${menorCpf}`;
-      txt += `, neste ato representado(a) por sua ${parentesco} <strong>${nome.toUpperCase()}</strong>`;
+      if (menorCpf) txt += `, portador do CPF nº ${menorCpf}`;
+      txt += `, neste ato representado por sua ${parentesco} <strong>${nome.toUpperCase()}</strong>`;
       const partes = [nac, ec].filter(Boolean);
       if (partes.length) txt += `, ${partes.join(', ')}`;
-      if (rg) txt += `, portador(a) da cédula de RG nº ${rg}${orgao ? ' ' + orgao : ''}`;
-      if (cpf) txt += `, inscrita no CPF sob o nº ${cpf}`;
-      if (fil) txt += `, filha de ${fil}`;
-      if (end) txt += `, residente e domiciliada na ${end}, na cidade de ${v('cidade')}/${v('uf')}${cep}`;
+      if (rg)  txt += `, ${portador} da cédula de RG nº ${rg}${orgao ? ' ' + orgao : ''}`;
+      if (cpf) txt += `, ${inscrito} no CPF sob o nº ${cpf}`;
+      if (fil) txt += `, ${filho} de ${fil}`;
+      if (end) txt += `, ${residente} na ${end}, na cidade de ${v('cidade')}/${v('uf')}${cep}`;
       return txt;
 
     } else {
       let txt = `<strong>${nome.toUpperCase()}</strong>`;
       const partes = [nac, ec, prof].filter(Boolean);
       if (partes.length) txt += `, ${partes.join(', ')}`;
-      if (rg) txt += `, portador(a) da cédula de RG nº ${rg}${orgao ? ' ' + orgao : ''}`;
-      if (cpf) txt += `, inscrito(a) no CPF sob o nº ${cpf}`;
-      if (fil) txt += `, filha de ${fil}`;
-      if (end) txt += `, residente e domiciliado(a) na ${end}, na cidade de ${v('cidade')}/${v('uf')}${cep}`;
+      if (rg)  txt += `, ${portador} da cédula de RG nº ${rg}${orgao ? ' ' + orgao : ''}`;
+      if (cpf) txt += `, ${inscrito} no CPF sob o nº ${cpf}`;
+      if (fil) txt += `, ${filho} de ${fil}`;
+      if (end) txt += `, ${residente} na ${end}, na cidade de ${v('cidade')}/${v('uf')}${cep}`;
       return txt;
     }
   }
@@ -1226,8 +1255,8 @@
     document.getElementById('bloco-pj').classList.remove('show');
     eMenor = false;
     ePJ = false;
-    document.getElementById('nacionalidade').value = 'brasileiro(a)';
-    document.getElementById('menor-nac').value = 'brasileiro(a)';
+    document.getElementById('sexo').value = 'F';
+    atualizarSexo();
     document.getElementById('cidade').value = 'Frutal';
     document.getElementById('uf').value = 'MG';
     document.getElementById('estadoCivil').selectedIndex = 0;
